@@ -11,8 +11,8 @@ namespace StockWatcher
     {
         internal const string CODE_SH_STOCK_NUMBER = "000001";
         internal const string CODE_SZ_STOCK_NUMBER = "399001";
-        internal const string CODE_SH_STOCK = "s_sh" + CODE_SH_STOCK_NUMBER;
-        internal const string CODE_SZ_STOCK = "s_sz" + CODE_SZ_STOCK_NUMBER;
+        internal const string CODE_SH_STOCK = "sh" + CODE_SH_STOCK_NUMBER;
+        internal const string CODE_SZ_STOCK = "sz" + CODE_SZ_STOCK_NUMBER;
 
         internal static string LOG_PATH;
 
@@ -26,8 +26,18 @@ namespace StockWatcher
 
         static StockConfig()
         {
-            CONFIG_PATH = Path.Combine(Path.GetTempPath(), "stock_watcher_config.ini");
-            LOG_PATH = Path.Combine(Path.GetTempPath(), "stock_watcher.log");
+            var configDir = @"c:\temp_stock_watcher\";
+            if (!Directory.Exists(configDir))
+            {
+                Directory.CreateDirectory(configDir);
+            }
+            var logDir = @"c:\temp_stock_watcher\log\";
+            if (!Directory.Exists(logDir))
+            {
+                Directory.CreateDirectory(logDir);
+            }
+            CONFIG_PATH = Path.Combine(configDir, "stock_watcher_config.ini");
+            LOG_PATH = Path.Combine(logDir, $"{DateTime.Now.ToString("yyyy-MM-dd")}.log");
             LoadSetting();
         }
 

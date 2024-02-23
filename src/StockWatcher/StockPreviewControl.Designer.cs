@@ -47,7 +47,7 @@ namespace StockWatcher
             this.labelForStatus.ForeColor = System.Drawing.Color.White;
             this.labelForStatus.Location = new System.Drawing.Point(0, 0);
             this.labelForStatus.Name = "labelForStatus";
-            this.labelForStatus.Size = new System.Drawing.Size(150, 45);
+            this.labelForStatus.Size = new System.Drawing.Size(180, 45);
             this.labelForStatus.TabIndex = 0;
             this.labelForStatus.Text = "正在加载行情";
             this.labelForStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -61,7 +61,7 @@ namespace StockWatcher
             this.BackColor = System.Drawing.SystemColors.Desktop;
             this.Controls.Add(this.labelForStatus);
             this.Name = "StockPreviewControl";
-            this.Size = new System.Drawing.Size(150, 45);
+            this.Size = new System.Drawing.Size(180, 45);
             this.ResumeLayout(false);
 
         }

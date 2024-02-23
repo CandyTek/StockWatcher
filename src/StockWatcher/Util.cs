@@ -90,11 +90,11 @@ namespace StockWatcher
             }
             else if (code.StartsWith("60") || code.StartsWith("900"))
             {
-                code = $"s_sh{code}";
+                code = $"sh{code}";
             }
             else if (code.StartsWith("000") || code.StartsWith("002") || code.StartsWith("300") || code.StartsWith("200"))
             {
-                code = $"s_sz{code}";
+                code = $"sz{code}";
             }
             return code;
         }

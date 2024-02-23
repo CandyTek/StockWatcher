@@ -11,6 +11,7 @@ namespace StockWatcher
         private Timer timer = null;
         private static int currentIndex = -1;
         private static int maxIndex = -1;
+        private int errorCount = 0;
         public StockPreviewControl(CSDeskBand.CSDeskBandWin w)
         {
             CheckForIllegalCrossThreadCalls = false;
@@ -19,10 +20,14 @@ namespace StockWatcher
 
             this.ContextMenu = new ContextMenu(new MenuItem[]
             {
-                new MenuItem("联系作者", new EventHandler((s, e) =>
-                {
-                    Util.Info($"QQ: 491217650\r\nGithub: https://github.com/mrhuo\r\nEmail: admin@mrhuo.com", "联系作者");
-                })),
+//                new MenuItem("联系作者", new EventHandler((s, e) =>
+//                {
+//                    Util.Info($@"
+
+// System.Windows.Forms.Application.ExecutablePath:{System.Windows.Forms.Application.ExecutablePath}
+//System.Windows.Forms.Application.StartupPath:{System.Windows.Forms.Application.StartupPath}
+//System.AppDomain.CurrentDomain.BaseDirectory:{System.AppDomain.CurrentDomain.BaseDirectory}");
+//                })),
                 new MenuItem("设置", new EventHandler((s, e) =>
                 {
                     new frmSetting(this).ShowDialog();
@@ -72,7 +77,9 @@ namespace StockWatcher
                     else
                     {
                         labelForStatus.Tag = stockModel;
-                        UpdateStatus($"{stockModel.Name} {stockModel.CurrentPrice.ToString("F2")}\r\n{stockModel.PricePercent}{(stockModel.IsUp ? "↑" : "↓")}", stockModel.IsUp ? StockColor.Red : StockColor.Green);
+                        UpdateStatus($"{stockModel.Name} {stockModel.CurrentPrice.ToString("F2")}/{(stockModel.PricePercent*100).ToString("F1")}{(stockModel.IsUp ? "↑" : "↓")}" +
+                            $"\r\n{stockModel.BuyPrice1}-{(stockModel.BuyAmount1/10000f).ToString("F2")} / {stockModel.SellPrice1}-{(stockModel.SellAmount1/10000f).ToString("F2")}" 
+                            , stockModel.IsUp ? StockColor.Red : StockColor.Green);
                     }
                 });
             }
@@ -99,8 +106,11 @@ namespace StockWatcher
         private void LoadSetting()
         {
             StockConfig.LoadSetting();
-            maxIndex = StockConfig.StockList.Count - 1;
-            if (maxIndex <= 0)
+            maxIndex = StockConfig.StockList.Count-1;
+            if (maxIndex == 0)
+            {
+                currentIndex = 0;
+            }else if (maxIndex < 0)
             {
                 currentIndex = -1;
             }
@@ -120,7 +130,7 @@ namespace StockWatcher
             {
                 var res = await InvokeSinaApi(code);
 #if DEBUG
-                Util.Log($"服务器返回值【{res}】");
+                //Util.Log($"服务器返回值【{res}】");
 #endif
                 var startAt = res.IndexOf("\"") + 1;
                 if (startAt == -1)
@@ -142,14 +152,23 @@ namespace StockWatcher
                 {
                     Code = code.Substring(code.Length - 6),
                     Name = arr[0],
-                    CurrentPrice = float.Parse(arr[1]),
-                    PricePercent = float.Parse(arr[2])
+                    CurrentPrice = float.Parse(arr[3]), 
+                    LastClose=float.Parse(arr[2]),
+                    BuyPrice1= float.Parse(arr[11]),
+                    BuyVolume1= float.Parse(arr[10]),
+                    SellPrice1= float.Parse(arr[21]),
+                    SellVolume1= float.Parse(arr[20])
                 };
             }
             catch (Exception ex)
             {
+                errorCount++;
                 //记录日志
-                Util.Log($"查询股票【{code}】信息出错！", ex);
+                if (errorCount < 10)
+                {
+                    Util.Log($"查询股票【{code}】信息出错！", ex);
+                }
+                
                 return null;
             }
         }
@@ -181,10 +200,11 @@ namespace StockWatcher
             if (labelForStatus.Tag != null && labelForStatus.Tag is StockModel model)
             {
                 Util.Info(
-                    $"代码：{model.Code}\r\n" +
-                    $"名称：{model.Name}\r\n" +
-                    $"现价：{model.CurrentPrice}\r\n" +
-                    $"涨跌：{model.PricePercent}"
+                    $@"代码：{model.Code} 
+名称：{model.Name}
+现价：{model.CurrentPrice}
+买一：{model.BuyAmount1}
+卖一：{model.SellVolume1}"
                 , "查看详情");
             }
         }
@@ -195,7 +215,10 @@ namespace StockWatcher
         public string Code { get; set; }
         public string Name { get; set; }
         public float CurrentPrice { get; set; }
-        public float PricePercent { get; set; }
+        public float LastClose { get; set; }
+        public float PricePercent { get {
+              return  (CurrentPrice - LastClose) / LastClose;
+            } }
         public bool IsUp
         {
             get
@@ -203,6 +226,17 @@ namespace StockWatcher
                 return PricePercent > 0;
             }
         }
+
+        public float BuyPrice1 { get; set; }
+        public int BuyAmount1 { get {
+                return Convert.ToInt32( (this.BuyPrice1 * this.BuyVolume1) / 10000);
+            }  }
+        public float BuyVolume1 { get; set; }
+        public float SellPrice1 { get; set; }
+        public int SellAmount1 { get {
+                return Convert.ToInt32 (SellPrice1 * SellVolume1 / 10000);
+            } }
+        public float SellVolume1 { get; set; }
     }
 
     enum StockColor
