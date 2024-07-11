@@ -38,10 +38,10 @@ namespace StockWatcher
         {
             this.labelForStatus = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            // 
-            // labelForStatus
-            // 
-            this.labelForStatus.BackColor = System.Drawing.Color.Transparent;
+			// 
+			// labelForStatus
+			// 
+			this.labelForStatus.BackColor = System.Drawing.Color.Transparent;
             this.labelForStatus.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelForStatus.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.labelForStatus.ForeColor = System.Drawing.Color.White;
@@ -58,7 +58,8 @@ namespace StockWatcher
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.BackColor = System.Drawing.SystemColors.Desktop;
+            this.BackColor = System.Drawing.Color.Black;
+            //this.BackColor = System.Drawing.SystemColors.Desktop;
             this.Controls.Add(this.labelForStatus);
             this.Name = "StockPreviewControl";
             this.Size = new System.Drawing.Size(180, 45);

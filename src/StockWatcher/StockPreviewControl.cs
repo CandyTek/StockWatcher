@@ -77,9 +77,11 @@ namespace StockWatcher
                     else
                     {
                         labelForStatus.Tag = stockModel;
-                        UpdateStatus($"{stockModel.Name} {stockModel.CurrentPrice.ToString("F2")}/{(stockModel.PricePercent*100).ToString("F1")}{(stockModel.IsUp ? "↑" : "↓")}" +
-                            $"\r\n{stockModel.BuyPrice1}-{(stockModel.BuyAmount1/10000f).ToString("F2")} / {stockModel.SellPrice1}-{(stockModel.SellAmount1/10000f).ToString("F2")}" 
-                            , stockModel.IsUp ? StockColor.Red : StockColor.Green);
+                        UpdateStatus($"{stockModel.Name} {stockModel.CurrentPrice.ToString("F2")}\r\n{stockModel.LastClose.ToString("F2")} {(stockModel.IsUp ? "↑" : "↓")}" 
+                         , stockModel.IsUp ? StockColor.Red : StockColor.Green);
+                        //UpdateStatus($"{stockModel.Name} {stockModel.CurrentPrice.ToString("F2")}/{(stockModel.PricePercent*100).ToString("F1")}{(stockModel.IsUp ? "↑" : "↓")}" +
+                        //    $"\r\n{stockModel.BuyPrice1}-{(stockModel.BuyAmount1/10000f).ToString("F2")} / {stockModel.SellPrice1}-{(stockModel.SellAmount1/10000f).ToString("F2")}" 
+                        //    , stockModel.IsUp ? StockColor.Red : StockColor.Green);
                     }
                 });
             }
@@ -90,10 +92,10 @@ namespace StockWatcher
             switch (color)
             {
                 case StockColor.Green:
-                    labelForStatus.ForeColor = Color.FromArgb(0, 255, 0);
+                    labelForStatus.ForeColor = Color.FromArgb(0, 120, 0);
                     break;
                 case StockColor.Red:
-                    labelForStatus.ForeColor = Color.Red;
+                    labelForStatus.ForeColor = Color.FromArgb(120, 0, 0);
                     break;
                 case StockColor.Disabled:
                     labelForStatus.ForeColor = Color.White;
@@ -143,7 +145,7 @@ namespace StockWatcher
                 {
                     throw new Exception($"服务器返回数据异常：{res}");
                 }
-                var arr = result.Split(',');
+                var arr = result.Split('~');
                 if (arr.Length < 3)
                 {
                     throw new Exception($"服务器返回数据异常：{res}");
@@ -151,13 +153,13 @@ namespace StockWatcher
                 return new StockModel()
                 {
                     Code = code.Substring(code.Length - 6),
-                    Name = arr[0],
-                    CurrentPrice = float.Parse(arr[3]), 
-                    LastClose=float.Parse(arr[2]),
-                    BuyPrice1= float.Parse(arr[11]),
-                    BuyVolume1= float.Parse(arr[10]),
-                    SellPrice1= float.Parse(arr[21]),
-                    SellVolume1= float.Parse(arr[20])
+                    Name = arr[1],
+					CurrentPrice = float.Parse(arr[3]),
+					LastClose= float.Parse(arr[4]),
+                    BuyPrice1= float.Parse(arr[6]),
+                    BuyVolume1= 0,
+                    SellPrice1= 0,
+                    SellVolume1= 0
                 };
             }
             catch (Exception ex)
@@ -175,8 +177,9 @@ namespace StockWatcher
 
         private async Task<string> InvokeSinaApi(string code)
         {
-            var api = $"http://hq.sinajs.cn/list={code}";
-            try
+			//var api = $"http://hq.sinajs.cn/list={code}";
+			var api = $"http://qt.gtimg.cn/q=s_{code}";
+			try
             {
                 using (var client = new HttpClient()
                 {
@@ -223,7 +226,7 @@ namespace StockWatcher
         {
             get
             {
-                return PricePercent > 0;
+                return LastClose > 0;
             }
         }
 
