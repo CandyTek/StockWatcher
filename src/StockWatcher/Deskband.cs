@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSDeskBand;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -19,7 +20,9 @@ namespace StockWatcher
         public Deskband()
         {
             _control = new StockPreviewControl(this);
-            Options.MinHorizontalSize = new Size(_control.Width, _control.Height);
+			Options.MinHorizontalSize.Width = _control.Width;
+			Options.MinHorizontalSize.Height = _control.Height;
+			//Options.MinHorizontalSize = new Size(_control.Width, _control.Height);
         }
 
         protected override Control Control => _control;
